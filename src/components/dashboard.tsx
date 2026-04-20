@@ -1,7 +1,6 @@
 import StatisticsBlock from "@/components/shadcn-space/blocks/dashboard-shell-01/statistics";
 import SalesOverviewChart from "@/components/shadcn-space/blocks/dashboard-shell-01/sales-overview-chart";
 import EarningReportChart from "@/components/shadcn-space/blocks/dashboard-shell-01/earning-report-chart";
-import SalesByCountryWidget from "@/components/shadcn-space/blocks/dashboard-shell-01/salesbyregionwidget";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import type { SalesInsights } from "@/types/insights";
