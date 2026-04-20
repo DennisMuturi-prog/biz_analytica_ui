@@ -59,7 +59,7 @@ const TopSalesMenTable = ({
     <Card className="h-full w-full gap-6 pt-6 pb-0">
       <CardHeader className="items-center justify-between px-6 sm:flex">
         <div>
-          <CardTitle className="leading-normal">Top Projects</CardTitle>
+          <CardTitle className="leading-normal">Top Sales Reps</CardTitle>
           <CardDescription>
             Checkout the statistics of top sales reps
           </CardDescription>
