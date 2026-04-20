@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react"
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
-} from "@/components/ui/collapsible";
+} from "@/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,15 +15,16 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-} from "@/components/ui/sidebar";
-import type { NavItem } from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar";
-import { cn } from "@/lib/utils";
-import { Link, useLocation } from '@tanstack/react-router'
-
+} from "@/components/ui/sidebar"
+import type { NavItem } from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar"
+import { cn } from "@/lib/utils"
+import { Link, useLocation } from "@tanstack/react-router"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { PlusSignCircleIcon } from "@hugeicons/core-free-icons"
 
 export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = useLocation({
-    select: location => location.pathname,
+    select: (location) => location.pathname,
   })
 
   // Recursive render function
@@ -32,13 +33,13 @@ export function NavMain({ items }: { items: NavItem[] }) {
     if (item.isSection && item.label) {
       return (
         <SidebarGroup key={item.label} className="p-0 pt-5 first:pt-0">
-          <SidebarGroupLabel className="p-0 text-xs font-medium uppercase text-sidebar-foreground">
+          <SidebarGroupLabel className="p-0 text-xs font-medium text-sidebar-foreground uppercase">
             {item.label}
           </SidebarGroupLabel>
         </SidebarGroup>
-      );
+      )
     }
-    const hasChildren = !!item.children?.length;
+    const hasChildren = !!item.children?.length
     // Item with children → collapsible
     if (hasChildren && item.title) {
       return (
@@ -46,14 +47,17 @@ export function NavMain({ items }: { items: NavItem[] }) {
           <SidebarMenu>
             <Collapsible>
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild className="w-full collapsible/button">
+                <CollapsibleTrigger
+                  asChild
+                  className="collapsible/button w-full"
+                >
                   <SidebarMenuButton
                     tooltip={item.title}
-                    className="rounded-xl text-sm px-3 py-2 h-9 cursor-pointer"
+                    className="h-9 cursor-pointer rounded-xl px-3 py-2 text-sm"
                   >
                     {item.icon && <item.icon size={16} />}
                     <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 collapsible/button-[aria-expanded='true']:rotate-90" />
+                    <ChevronRight className="collapsible/button-[aria-expanded='true']:rotate-90 ml-auto transition-transform duration-200" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -65,11 +69,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
             </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
-      );
+      )
     }
     // Item without children
     if (item.title) {
-      const isActive = item.isActive ?? pathname === item.href;
+      const isActive = item.isActive ?? pathname === item.href
 
       return (
         <SidebarGroup key={item.title} className="p-0">
@@ -78,10 +82,10 @@ export function NavMain({ items }: { items: NavItem[] }) {
               <SidebarMenuButton
                 tooltip={item.title}
                 className={cn(
-                  "rounded-lg text-sm px-3 py-2 h-9 ",
+                  "h-9 rounded-lg px-3 py-2 text-sm",
                   isActive
-                    ? "bg-primary hover:bg-primary dark:bg-blue-500 text-white dark:hover:bg-blue-500 hover:text-white"
-                    : "",
+                    ? "bg-primary text-white hover:bg-primary hover:text-white dark:bg-blue-500 dark:hover:bg-blue-500"
+                    : ""
                 )}
               >
                 {item.icon && <item.icon />}
@@ -92,19 +96,19 @@ export function NavMain({ items }: { items: NavItem[] }) {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
-      );
+      )
     }
-    return null;
-  };
+    return null
+  }
   // Recursive render function for sub-items
   const renderItemSub = (item: NavItem) => {
-    const hasChildren = !!item.children?.length;
+    const hasChildren = !!item.children?.length
     if (hasChildren && item.title) {
       return (
         <SidebarMenuSubItem key={item.title}>
           <Collapsible>
             <CollapsibleTrigger className="w-full">
-              <SidebarMenuSubButton className="rounded-xl text-sm px-3 py-2 h-9">
+              <SidebarMenuSubButton className="h-9 rounded-xl px-3 py-2 text-sm">
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
                 <ChevronRight className="ml-auto transition-transform duration-200 data-[state=open]:rotate-90" />
@@ -117,7 +121,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
             </CollapsibleContent>
           </Collapsible>
         </SidebarMenuSubItem>
-      );
+      )
     }
     if (item.title) {
       return (
@@ -128,10 +132,31 @@ export function NavMain({ items }: { items: NavItem[] }) {
             </Link>
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
-      );
+      )
     }
-    return null;
-  };
+    return null
+  }
 
-  return <>{items.map(renderItem)}</>;
+  return (
+    <>
+      <SidebarMenuItem className="flex items-center gap-2">
+        <SidebarMenuButton
+          asChild
+            tooltip="Quick Create"
+            className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+        >
+          <Link to="/upload">
+            <HugeiconsIcon icon={PlusSignCircleIcon} strokeWidth={2} />
+            <span>Upload Doc</span>
+            
+          </Link>
+            
+            
+          </SidebarMenuButton>
+        
+      </SidebarMenuItem>
+
+      {items.map(renderItem)}
+    </>
+  )
 }

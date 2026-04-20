@@ -1,24 +1,34 @@
 "use client";
 
 import { File, FileSpreadsheet, X } from "lucide-react";
-import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import { type ChangeEvent, type DragEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import axios from "axios"
+const url = "http://localhost:8000/uploadfile"
+import { useNavigate } from '@tanstack/react-router'
+
 
 export default function FileUpload04() {
+  const navigate = useNavigate()
   const [uploadState, setUploadState] = useState<{
     file: File | null;
     progress: number;
     uploading: boolean;
+    done: boolean;
   }>({
     file: null,
     progress: 0,
     uploading: false,
+    done:false
   });
-  const [showDummy, setShowDummy] = useState(true);
+  // const mutation = useMutation({
+  //     mutationFn: postTodo,
+  //   })
+  const [showDummy, setShowDummy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validFileTypes = [
@@ -26,23 +36,52 @@ export default function FileUpload04() {
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ];
+  const handleUpload = async () => {
+      if (uploadState.file) {
+        console.log('Uploading file...');
+  
+        const formData = new FormData();
+        formData.append('file', uploadState.file);
+  
+        try {
+          setUploadState((prev)=>({...prev,uploading:true}));
+          await axios.post(url, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+            onUploadProgress: (progressEvent) => {
+              if (progressEvent.total) {
+                  const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                  setUploadState((prev)=>({...prev,progress})); 
+              } else {
+                if (uploadState.file?.size) {
+                  const progress = (progressEvent.loaded / uploadState.file.size ) * 100;
+                  setUploadState((prev)=>({...prev,progress}));
+                }
+              }
+                },
+              });
+          setUploadState((prev) => ({ ...prev, uploading: false, done: true }));
+          navigate({ 
+                to: '/',
+              })
+          toast.success("File uploaded anc cleaned successfully", {
+            position: "top-center",
+            duration: 3000,
+          });
+
+        } catch (error) {
+          console.error(error);
+          setUploadState((prev)=>({...prev,uploading:false}));
+        }
+      }
+    };
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
 
     if (validFileTypes.includes(file.type)) {
-      setUploadState({ file, progress: 0, uploading: true });
-
-      const interval = setInterval(() => {
-        setUploadState((prev) => {
-          const newProgress = prev.progress + 5;
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            return { ...prev, progress: 100, uploading: false };
-          }
-          return { ...prev, progress: newProgress };
-        });
-      }, 200);
+      setUploadState((prev)=>({...prev,file:file}));
     } else {
       toast.error("Please upload a CSV, XLSX, or XLS file.", {
         position: "bottom-right",
@@ -61,7 +100,7 @@ export default function FileUpload04() {
   };
 
   const resetFile = () => {
-    setUploadState({ file: null, progress: 0, uploading: false });
+    setUploadState({ file: null, progress: 0, uploading: false,done:false });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -90,7 +129,10 @@ export default function FileUpload04() {
 
   return (
     <div className="flex items-center justify-center p-10 w-full max-w-lg">
-      <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+      <form className="w-full" onSubmit={(e) => {
+        e.preventDefault()
+        handleUpload()
+      }}>
         <h3 className="text-balance text-lg font-semibold text-foreground">File Upload</h3>
 
         <div
@@ -200,7 +242,7 @@ export default function FileUpload04() {
         )}
 
         <div className="mt-8 flex items-center justify-end space-x-3">
-          <Button
+          {!uploadState.done&&<Button
             type="button"
             variant="outline"
             className="whitespace-nowrap"
@@ -209,13 +251,20 @@ export default function FileUpload04() {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            className="whitespace-nowrap"
-            disabled={!file || uploading || progress < 100}
-          >
-            Upload
-          </Button>
+          }
+          {
+            !uploadState.done &&
+            <Button
+              type="submit"
+              className="whitespace-nowrap"
+              disabled={!file || uploading}
+            >
+              Upload
+            </Button>
+            
+            
+          }
+          
         </div>
       </form>
     </div>

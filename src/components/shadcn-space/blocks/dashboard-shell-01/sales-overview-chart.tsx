@@ -9,21 +9,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { formatter } from "@/lib/helpers";
 
-const chartData = [
-  { month: "Jan", expense: 31, profit: 31, earning: 31 },
-  { month: "Feb", expense: 83, profit: 83, earning: 83 },
-  { month: "Mar", expense: 53, profit: 53, earning: 53 },
-  { month: "Apr", expense: 36, profit: 36, earning: 36 },
-  { month: "May", expense: 64, profit: 64, earning: 64 },
-  { month: "Jun", expense: 47, profit: 47, earning: 47 },
-  { month: "Jul", expense: 95, profit: 95, earning: 95 },
-  { month: "Aug", expense: 69, profit: 69, earning: 69 },
-  { month: "Sep", expense: 29, profit: 29, earning: 29 },
-  { month: "Oct", expense: 73, profit: 73, earning: 73 },
-  { month: "Nov", expense: 27, profit: 27, earning: 27 },
-  { month: "Dec", expense: 53, profit: 53, earning: 53 },
-];
+// const chartData = [
+//   { month: "Jan", expense: 31, profit: 31, earning: 31 },
+//   { month: "Feb", expense: 83, profit: 83, earning: 83 },
+//   { month: "Mar", expense: 53, profit: 53, earning: 53 },
+//   { month: "Apr", expense: 36, profit: 36, earning: 36 },
+//   { month: "May", expense: 64, profit: 64, earning: 64 },
+//   { month: "Jun", expense: 47, profit: 47, earning: 47 },
+//   { month: "Jul", expense: 95, profit: 95, earning: 95 },
+//   { month: "Aug", expense: 69, profit: 69, earning: 69 },
+//   { month: "Sep", expense: 29, profit: 29, earning: 29 },
+//   { month: "Oct", expense: 73, profit: 73, earning: 73 },
+//   { month: "Nov", expense: 27, profit: 27, earning: 27 },
+//   { month: "Dec", expense: 53, profit: 53, earning: 53 },
+// ];
 
 const chartConfig = {
   expense: {
@@ -39,25 +40,36 @@ const chartConfig = {
     color: "rgba(56, 189, 248, 0.5)",
   },
 } satisfies ChartConfig;
+type SalesChartInfo = {
+  month: string,
+  sales:number
+}
+type SalesChartBlock = {
+  sales_chart_info:SalesChartInfo[]
+}
 
-export default function SalesOverviewChart() {
+
+export default function SalesOverviewChart(
+  {sales_chart_info}:SalesChartBlock
+) {
   const Countries = [
     {
       id: 1,
-      title: "Earning",
+      title: "Sales",
       color: "bg-sky-400/50",
     },
-    {
-      id: 2,
-      title: "Profit",
-      color: "bg-sky-400",
-    },
-    {
-      id: 3,
-      title: "Expense",
-      color: "bg-blue-500",
-    },
+    // {
+    //   id: 2,
+    //   title: "Profit",
+    //   color: "bg-sky-400",
+    // },
+    // {
+    //   id: 3,
+    //   title: "Expense",
+    //   color: "bg-blue-500",
+    // },
   ];
+  const totalAmount = sales_chart_info.reduce((sum, item) => sum + item.sales, 0);
 
   return (
     <Card className="w-full py-6 gap-6">
@@ -66,12 +78,12 @@ export default function SalesOverviewChart() {
           <CardTitle className="text-lg font-medium">Sales Overview</CardTitle>
           <div className="flex items-center gap-2">
             <h3 className="text-3xl font-medium text-card-foreground">
-              $386.53K
+              Kes {formatter.format(totalAmount)}
             </h3>
             <Badge
               className={cn("bg-teal-400/10 text-muted-foreground shadow-none")}
             >
-              +18%
+              {"coming soon  percentage"}
             </Badge>
             <span className="text-xs text-muted-foreground">
               than last year
@@ -89,7 +101,7 @@ export default function SalesOverviewChart() {
       </CardHeader>
       <CardContent className="px-6">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={db_str_to_month(sales_chart_info)}>
             <CartesianGrid
               vertical={false}
               strokeDasharray="3 3"
@@ -108,12 +120,12 @@ export default function SalesOverviewChart() {
               axisLine={false}
               tickMargin={10}
               fontSize={12}
-              tickFormatter={(value) => `${value / 10}k`}
-              domain={[0, 100]}
-              ticks={[0, 50, 100, 150, 200, 250, 300]}
+              tickFormatter={(value) => `${value / 1000}k`}
+              // domain={[0, 100]}
+              // ticks={[0, 50, 100, 150, 200, 250, 300]}
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <Bar
+            {/*<Bar
               dataKey="expense"
               stackId="a"
               fill="var(--color-expense)"
@@ -126,9 +138,9 @@ export default function SalesOverviewChart() {
               fill="var(--color-profit)"
               radius={[0, 0, 0, 0]}
               barSize={20}
-            />
+            />*/}
             <Bar
-              dataKey="earning"
+              dataKey="sales"
               stackId="a"
               fill="var(--color-earning)"
               radius={[4, 4, 0, 0]}
@@ -139,4 +151,16 @@ export default function SalesOverviewChart() {
       </CardContent>
     </Card>
   );
+}
+
+
+function getShortMonth(dateStr:string) {
+  // Add a day (e.g., "-01") so it becomes a valid date string
+  const date = new Date(`${dateStr}-01`);
+  
+  return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+}
+function db_str_to_month(sales_info: SalesChartInfo[]) {
+  const new_sales_info = sales_info.map((old) => ({ ...old, month: getShortMonth(old.month) }))
+  return new_sales_info
 }
